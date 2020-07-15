@@ -18,7 +18,7 @@ public class DataApplication {
         SpringApplication.run(DataApplication.class, args);
 
         Crawler crawler = new Crawler();
-        crawler.getPageLinks("http://www.mkyong.com/", 0);
+        crawler.getData();
 
         //Async async = new Async(dataService);
         //async.start();

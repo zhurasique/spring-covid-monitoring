@@ -6,37 +6,67 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Crawler {
-    private HashSet<String> links;
+    private String URL = "https://en.wikipedia.org/wiki/Template:COVID-19_pandemic_data";
 
-    public Crawler() {
-        links = new HashSet<String>();
+    private List<String> countries = new ArrayList<>();
+    private List<Integer> cases = new ArrayList<>();
+    private List<Integer> deaths = new ArrayList<>();
+    private List<Integer> recovered = new ArrayList<>();
+
+    public Crawler() { }
+
+    public void getData() {
+        //getCountries();
+        getStats();
     }
 
-    public void getPageLinks(String URL, int depth) {
-        //4. Check if you have already crawled the URLs
-        //(we are intentionally not checking for duplicate content in this example)
-        if (!links.contains(URL)) {
-            try {
-                //4. (i) If not add it to the index
-                if (links.add(URL)) {
-                    System.out.println(URL);
-                }
-
-                //2. Fetch the HTML code
-                Document document = Jsoup.connect(URL).get();
-                //3. Parse the HTML to extract links to other URLs
-                Elements linksOnPage = document.select("a[href]");
-
-                //5. For each extracted URL... go back to Step 4.
-                for (Element page : linksOnPage) {
-                    getPageLinks(page.attr("abs:href"), depth);
-                }
-            } catch (IOException e) {
-                System.err.println("For '" + URL + "': " + e.getMessage());
+    public void getCountries(){
+        try {
+            Document document = Jsoup.connect(URL).get();
+            Elements selectedCountries = document.select("table tr th[scope] a[href][title]");
+            for (Element page : selectedCountries) {
+                countries.add(page.text());
             }
+
+            int lastIndex = countries.indexOf("Tanzania") + 1;
+
+            if (countries.size() > lastIndex) {
+                countries.subList(lastIndex, countries.size()).clear();
+            }
+
+            for(String st : countries){
+                System.out.println(st + " " + countries.lastIndexOf(st));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getStats(){
+        List<String> data = new ArrayList<>();
+        try {
+            Document document = Jsoup.connect(URL).get();
+            Elements selectedCountries = document.select("table tr td");
+
+            for (Element page : selectedCountries) {
+//                if(!page.text().startsWith("[")) {
+//                    System.out.println(page.text());
+//                }
+                if(page.text().contains("History of deaths")){
+                    System.out.println(page.text());
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
