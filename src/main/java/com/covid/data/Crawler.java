@@ -1,5 +1,6 @@
 package com.covid.data;
 
+import com.covid.data.domain.Data;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,50 +24,86 @@ public class Crawler {
     public Crawler() { }
 
     public void getData() {
-        //getCountries();
-        getStats();
+        countries();
+        stats();
     }
 
-    public void getCountries(){
+    public void countries(){
         try {
             Document document = Jsoup.connect(URL).get();
             Elements selectedCountries = document.select("table tr th[scope] a[href][title]");
-            for (Element page : selectedCountries) {
+            for (Element page : selectedCountries)
                 countries.add(page.text());
-            }
 
             int lastIndex = countries.indexOf("Tanzania") + 1;
 
-            if (countries.size() > lastIndex) {
+            if (countries.size() > lastIndex)
                 countries.subList(lastIndex, countries.size()).clear();
-            }
-
-            for(String st : countries){
-                System.out.println(st + " " + countries.lastIndexOf(st));
-            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void getStats(){
+    public void stats(){
         List<String> data = new ArrayList<>();
         try {
             Document document = Jsoup.connect(URL).get();
             Elements selectedCountries = document.select("table tr td");
 
+            int count = -1;
+            int lastIndex = 0;
             for (Element page : selectedCountries) {
-//                if(!page.text().startsWith("[")) {
-//                    System.out.println(page.text());
-//                }
-                if(page.text().contains("History of deaths")){
-                    System.out.println(page.text());
+                if(!page.text().startsWith("[")) {
+                    data.add(page.text().replace("\n", "").replace(",", "").replace("No data", "-1"));
+                    count++;
+                }
+                if(page.text().contains("History of deaths"))
+                    lastIndex = count;
+            }
+
+            if (data.size() > lastIndex)
+                data.subList(lastIndex, data.size()).clear();
+
+            for(int i = 0; i < data.size(); i++){
+                if(i + 2 < data.size()) {
+                    cases.add(Integer.parseInt(data.get(i)));
+                    i += 2;
                 }
             }
 
+            for(int i = 1; i < data.size(); i++){
+                if(i + 2 <= data.size()) {
+                    deaths.add(Integer.parseInt(data.get(i)));
+                    i += 2;
+                }
+            }
+
+            for(int i = 2; i < data.size(); i++){
+                if(i + 2 <= data.size()) {
+                    recovered.add(Integer.parseInt(data.get(i)));
+                    i += 2;
+                }else
+                    recovered.add(Integer.parseInt(data.get(data.size() - 1)));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Integer> getCases() {
+        return cases;
+    }
+
+    public List<Integer> getDeaths() {
+        return deaths;
+    }
+
+    public List<Integer> getRecovered() {
+        return recovered;
+    }
+
+    public List<String> getCountries() {
+        return countries;
     }
 }
