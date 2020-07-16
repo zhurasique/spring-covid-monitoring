@@ -49,7 +49,6 @@ public class DataService {
         data.setRecovered(recovered);
 
         dataRepo.save(data);
-        System.out.println("Saved data" + data.getId());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }
